@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>I LOVE YOU 💖</title>
+<style>
+  :root{
+    --bg1:#ff4d6d; --bg2:#ff99c8; --bg3:#b5179e;
+    --glow:#ff4d6d;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:system-ui,-apple-system,"Poppins",Segoe UI,Roboto,Arial}
+  /* animated gradient background */
+  body{
+    background: linear-gradient(130deg,var(--bg1),var(--bg2),var(--bg3));
+    background-size: 300% 300%;
+    animation: bg 12s ease-in-out infinite;
+    overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;
+  }
+  @keyframes bg{
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+  }
+
+  .stage{position:relative;display:grid;place-items:center;gap:22px;text-align:center;padding:24px}
+
+  /* HEART photo (SVG clip + glow + pulse) */
+  .photo{
+    width:min(82vw,360px);
+    filter: drop-shadow(0 0 25px rgba(255,77,109,.65))
+            drop-shadow(0 0 55px rgba(255,77,109,.35));
+    animation:pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.06)}
+  }
+
+  h1{
+    margin:0;
+    font-size:clamp(28px,8vw,64px);
+    letter-spacing:.02em;
+    text-shadow:0 0 18px rgba(255,255,255,.65), 0 0 40px rgba(255,77,109,.75);
+    animation: glow 2.2s ease-in-out infinite alternate;
+  }
+  @keyframes glow{
+    from{text-shadow:0 0 12px rgba(255,255,255,.55),0 0 24px rgba(255,77,109,.55)}
+    to{  text-shadow:0 0 22px rgba(255,255,255,.95),0 0 60px rgba(255,77,109,.95)}
+  }
+
+  .type{
+    font-size:clamp(14px,3.6vw,20px);
+    opacity:.9;
+    border-right:2px solid #fff;
+    white-space:nowrap;
+    overflow:hidden;
+    width:0;
+    animation: typing 4.5s steps(40,end) forwards, caret 700ms step-end infinite;
+  }
+  @keyframes typing{to{width:100%}}
+  @keyframes caret{50%{border-color:transparent}}
+
+  /* floating ❤️ */
+  .float{position:fixed;left:0;top:0;pointer-events:none;width:100%;height:100%;}
+  .heart{
+    position:absolute;opacity:.95;will-change:transform,opacity;user-select:none;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,.7));
+    animation: up linear forwards;
+  }
+  @keyframes up{
+    from{transform:translate(var(--x),110vh) scale(var(--s));opacity:1}
+    to  {transform:translate(calc(var(--x) + var(--drift)), -10vh) scale(calc(var(--s) * 1.4));opacity:0}
+  }
+
+  /* tap to burst hint (auto hide) */
+  .hint{
+    position:fixed;bottom:14px;left:50%;transform:translateX(-50%);
+    background:rgba(0,0,0,.25);backdrop-filter: blur(6px);
+    padding:8px 14px;border-radius:999px;font-size:13px
+  }
+</style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <!-- SVG heart mask with your image -->
+    <svg class="photo" viewBox="0 0 600 550" aria-hidden="true">
+      <defs>
+        <clipPath id="heart">
+          <path d="M300 520C180 420 80 340 60 240C40 150 95 90 170 90c60 0 99 40 130 90c31-50 70-90 130-90c75 0 130 60 110 150c-20 100-120 180-240 280Z"/>
+        </clipPath>
+      </defs>
+      <image
+        clip-path="url(#heart)"
+        href="https://raw.githubusercontent.com/rupam7800/I-AM-HATE-GIRL/1085968b337deae0bd30f62d4310c3ba019f439b/IMG_20250828_115245.jpg"
+        x="0" y="0" width="600" height="550" preserveAspectRatio="xMidYMid slice"/>
+    </svg>
+
+    <h1>I LOVE YOU ❤️</h1>
+    <div class="type">You are my favorite notification. ✨</div>
+  </div>
+
+  <!-- floating hearts layer -->
+  <div class="float" id="float"></div>
+  <div class="hint">❤️ Tap anywhere for a heart burst</div>
+
+<script>
+  const float = document.getElementById('float');
+  const hint  = document.querySelector('.hint');
+  let burstTimer = null;
+
+  // gentle floating hearts
+  setInterval(() => spawnHeart(), 350);
+
+  function spawnHeart(x = Math.random()*100){
+    const e = document.createElement('div');
+    e.className = 'heart';
+    e.textContent = Math.random() > .5 ? '❤️' : '💖';
+    const dur = 4 + Math.random()*3;
+    e.style.setProperty('--x', x+'vw');
+    e.style.setProperty('--s', (0.6 + Math.random()*0.8).toFixed(2));
+    e.style.setProperty('--drift', (Math.random()*16 - 8) + 'vw');
+    e.style.animationDuration = dur+'s';
+    e.style.fontSize = (18 + Math.random()*24) + 'px';
+    float.appendChild(e);
+    setTimeout(()=>e.remove(), dur*1000);
+  }
+
+  // tap/click = burst
+  const burst = (cx, cy) => {
+    for(let i=0;i<28;i++){
+      const e = document.createElement('div');
+      e.className = 'heart';
+      e.textContent = ['❤️','💖','💘'][i%3];
+      const ang = (i/28) * Math.PI*2;
+      const r = 12 + Math.random()*18;
+      const x = (cx/window.innerWidth)*100 + (Math.cos(ang)*r)/vw();
+      e.style.left = 0; e.style.top = 0;
+      spawnHeart(x);
+    }
+  };
+  const vw = ()=>window.innerWidth/100;
+
+  const fire = ev=>{
+    hint.style.display='none';
+    const t = ('touches' in ev) ? ev.touches[0] : ev;
+    burst(t.clientX, t.clientY);
+    clearTimeout(burstTimer);
+    burstTimer = setTimeout(()=>{},1500);
+  };
+  window.addEventListener('click', fire);
+  window.addEventListener('touchstart', fire, {passive:true});
+</script>
+</body>
+</html>
